@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/PrismarineJS/prismarine-provider-anvil.git"
+    "url": "https://github.com/Cecer/prismarine-provider-anvil.git"
   },
   "keywords": [
     "minecraft",
@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "node-promise-es6": "^0.3.2",
-    "prismarine-chunk": "^1.9.0",
+    "prismarine-chunk": "Cecer/prismarine-chunk",
     "prismarine-nbt": "^1.2.0",
     "uint4": "^0.1.2",
     "vec3": "^0.1.3"

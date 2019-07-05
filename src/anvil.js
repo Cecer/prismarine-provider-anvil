@@ -5,7 +5,7 @@ module.exports = loader
 let versionCache = {};
 function loader (mcVersion) {
   if (versionCache[mcVersion] === undefined) {
-    let versioned = require('./chunk')(mcVersion))
+    let versioned = require('./chunk')(mcVersion);
 
     versionCache[mcVersion] = class extends Anvil {
       constructor(path) {
