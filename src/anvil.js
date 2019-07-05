@@ -1,17 +1,27 @@
 const RegionFile = require('./region')
-let nbtChunkToPrismarineChunk, prismarineChunkToNbt
 
 module.exports = loader
 
+let versionCache = {};
 function loader (mcVersion) {
-  ({nbtChunkToPrismarineChunk, prismarineChunkToNbt} = require('./chunk')(mcVersion))
-  return Anvil
+  if (versionCache[mcVersion] === undefined) {
+    let versioned = require('./chunk')(mcVersion))
+
+    versionCache[mcVersion] = class extends Anvil {
+      constructor(path) {
+        super(path, versioned);
+      }
+    };
+    Object.defineProperty (versionCache[mcVersion], "name", {value: `Anvil_${mcVersion.replace(/\./g, "_")}`});
+  }
+  return versionCache[mcVersion];
 }
 
 class Anvil {
-  constructor (path) {
+  constructor (path, versioned) {
     this.regions = {}
     this.path = path
+    this._versioned = versioned;
   }
 
   regionFileName (x, z) {
@@ -37,7 +47,7 @@ class Anvil {
   async load (x, z) {
     const data = await this.loadRaw(x, z)
     if (data == null) { return null }
-    return nbtChunkToPrismarineChunk(data)
+    return this._versioned.nbtChunkToPrismarineChunk(data)
   }
 
   async loadRaw (x, z) {
@@ -47,7 +57,7 @@ class Anvil {
 
   // returns a Promise. Resolve an empty object when successful
   async save (x, z, chunk) {
-    await this.saveRaw(x, z, prismarineChunkToNbt(chunk))
+    await this.saveRaw(x, z, this._versioned.prismarineChunkToNbt(chunk))
   }
 
   async saveRaw (x, z, nbt) {

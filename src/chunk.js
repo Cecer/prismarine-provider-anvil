@@ -1,13 +1,11 @@
 const nbt = require('prismarine-nbt')
 
-let Chunk
-
 const Vec3 = require('vec3').Vec3
 const { readUInt4LE, writeUInt4LE } = require('uint4')
 
-function nbtChunkToPrismarineChunk (data) {
+function nbtChunkToPrismarineChunk (data, versioned) {
   let nbtd = nbt.simplify(data)
-  const chunk = new Chunk()
+  const chunk = new versioned.Chunk()
   readSections(chunk, nbtd.Level.Sections)
   readBiomes(chunk, nbtd.Level.Biomes)
   return chunk
@@ -190,9 +188,22 @@ function writeBiomes (chunk) {
   }
 }
 
+
+const versionCache = {};
+
 function loader (mcVersion) {
-  Chunk = require('prismarine-chunk')(mcVersion)
-  return {nbtChunkToPrismarineChunk, prismarineChunkToNbt}
+  if (versionCache[mcVersion] === undefined) {
+    let versioned = {
+        Chunk: require('prismarine-chunk')(mcVersion)
+    };
+    versionCache[mcVersion] = {
+      nbtChunkToPrismarineChunk: function(data) {
+        return nbtChunkToPrismarineChunk(data, versioned);
+      },
+      prismarineChunkToNbt: prismarineChunkToNbt
+    };
+  }
+  return versionCache[mcVersion];
 }
 
 module.exports = loader
